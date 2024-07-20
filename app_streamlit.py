@@ -35,13 +35,13 @@ st.markdown("""
     
     .centered {
         text-align: center;
-        font-size: 14px;
+        font-size: 16px;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # Entrée pour l'ID du client
-client_id = st.number_input("Entrez le SK_ID_CURR du client", min_value=int(clients_df['SK_ID_CURR'].min()), max_value=int(clients_df['SK_ID_CURR'].max()))
+client_id = st.number_input("Entrez le SK_ID_CURR du client :", min_value=int(clients_df['SK_ID_CURR'].min()), max_value=int(clients_df['SK_ID_CURR'].max()))
 
 # Sélectionner les colonnes spécifiques à afficher
 columns_to_display = ['SK_ID_CURR', 'AMT_ANNUITY', 'AMT_CREDIT', 'ANNUITY_INCOME_PERCENT', 'DAYS_EMPLOYED', 'CREDIT_INCOME_PERCENT', 'OWN_CAR_AGE', 'previous_loan_counts',
@@ -62,26 +62,56 @@ if client_id:
             if prediction == 1:
                 st.write("**Prédiction : BON CLIENT ! Le client devrait rembourser son crédit.**")
             else:
-                st.write("**Prédiction : MAUVAIS CLIENT ! Le client ne devrait pas rembourser son crédit.**")
+                st.write("**Prédiction : ATTENTION ! Le client risque de ne pas rembourser son crédit.**")
         else:
             st.error("Erreur lors de la prédiction")
             
         # Comparaison des caractéristiques du client avec la moyenne des autres clients
-        st.markdown("<p class='centered'><u>Comparaison des caractéristiques</u></p>", unsafe_allow_html=True)
+        st.markdown("<p class='centered'><u>Analyse univariée</u></p>", unsafe_allow_html=True)
         features = ['AMT_CREDIT', 'AMT_ANNUITY', 'ANNUITY_INCOME_PERCENT', 'CREDIT_INCOME_PERCENT', 'CREDIT_TERM']
         
                 # Menu déroulant pour sélectionner la caractéristique à afficher
         selected_feature = st.selectbox("Choisissez une caractéristique à afficher : ", features)
         
-        # Afficher le graphique pour la caractéristique sélectionnée
+        # Compute statistics
+        feature_value = client_info[selected_feature].values[0]
+        feature_mean = clients_df[selected_feature].mean()
+        feature_median = clients_df[selected_feature].median()
+
+        # Display the description of the selected feature
+        st.write(f"**Client** : {format_number(feature_value)}")
+        st.write(f"**Moyenne** : {format_number(feature_mean)}")
+        st.write(f"**Médiane** : {format_number(feature_median)}")
+
+        # Display the graph for the selected feature
         plt.figure(figsize=(10, 4))
         sns.kdeplot(clients_df[selected_feature], label='Distribution générale', color='#1E2D2F')
-        plt.axvline(client_info[selected_feature].values[0], color='red', linestyle='--', label='Client actuel')
-        plt.title(f"Comparaison de la caractéristique {selected_feature}")
-        plt.legend()
+        plt.axvline(feature_value, color='red', linestyle='--', label='Client actuel')
+        plt.title(f"Comparaison de la caractéristique {selected_feature}", fontsize=15)
+        plt.legend(fontsize=12)
         st.pyplot(plt)
+
+        # Bivariate Analysis
+        st.markdown("<p class='centered'><u>Analyse Bivariée</u></p>", unsafe_allow_html=True)
         
+        # Dropdown menus for selecting features for bivariate analysis
+        feature1 = st.selectbox("Choisissez la première caractéristique :", features)
+        feature2 = st.selectbox("Choisissez la seconde caractéristique :", features)
+        
+        if feature1 and feature2:
+            plt.figure(figsize=(12, 6))
+            # Scatter plot
+            sns.scatterplot(data=clients_df, x=feature1, y=feature2, alpha=0.4, color='#1E2D2F')
+            
+            # Plot the client point
+            client_x = client_info[feature1].values[0]
+            client_y = client_info[feature2].values[0]
+            plt.scatter(client_x, client_y, color='red', s=100, label='Client actuel')
+
+            plt.title(f"Analyse Bivariée entre {feature1} et {feature2}", fontsize=15)
+            plt.xlabel(feature1, fontsize=12)
+            plt.ylabel(feature2, fontsize=12)
+            plt.legend(fontsize=12)
+            st.pyplot(plt)
     else:
         st.error("Client non trouvé")
-
-

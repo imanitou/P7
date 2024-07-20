@@ -46,6 +46,6 @@ def predict(client_id: int):
         logging.error(f"Error during prediction: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
-# Dans le terminal lancer : uvicorn api_2:app --reload
+# Dans le terminal lancer : uvicorn api:app --reload
 
 # Test pour faire une requête GET à l'API avec un ID de client existant : http://127.0.0.1:8000/predict/100006
