@@ -7,7 +7,7 @@ from babel.numbers import format_decimal
 import requests
 
 # Charger les données des clients
-clients_df = pd.read_csv("app_train_with_feature_selection.csv")
+clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
 
 # Fonction pour obtenir les informations d'un client
 def get_client_info(client_id):
@@ -115,3 +115,5 @@ if client_id:
             st.pyplot(plt)
     else:
         st.error("Client non trouvé")
+
+# à écrire dans l'invite de commande : streamlit run app_streamlit.py

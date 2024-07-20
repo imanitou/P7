@@ -15,7 +15,7 @@ model = mlflow.sklearn.load_model(model_path)
 
 # Charger les données des clients
 try:
-    clients_df = pd.read_csv("app_train_with_feature_selection.csv")
+    clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
     logging.info("Clients data loaded successfully.")
     logging.info(f"Clients DataFrame head:\n{clients_df.head()}")
 except Exception as e:
