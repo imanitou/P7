@@ -12,11 +12,22 @@ app = FastAPI()
 # Configurer la journalisation
 logging.basicConfig(level=logging.INFO)
 
-# Définir le chemin de la clé JSON (remplacez par votre propre chemin)
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'C:\Users\guill\Imane\P7\secrets\key.json'
+# Lire le contenu JSON des credentials depuis la variable d'environnement
+key_json = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
+
+if key_json is None:
+    raise ValueError("La variable d'environnement GOOGLE_APPLICATION_CREDENTIALS_JSON n'est pas définie.")
+
+# Créer un fichier temporaire pour les credentials JSON
+with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.json') as temp_file:
+    temp_file.write(key_json)
+    temp_file_path = temp_file.name
+
+# Définir la variable d'environnement pour le chemin du fichier temporaire
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = temp_file_path
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
-    """Downloads a blob from the bucket."""
+    """Télécharge un blob depuis le bucket."""
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
@@ -39,7 +50,6 @@ except Exception as e:
 # Charger le modèle sauvegardé
 model_path = model_local_path
 model = mlflow.sklearn.load_model(model_path)
-
 
 # Charger les données des clients
 data_path = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
@@ -73,6 +83,11 @@ def predict(client_id: int):
     except Exception as e:
         logging.error(f"Error during prediction: {e}")
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        # Nettoyer le fichier temporaire après utilisation
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+
 
 # Dans le terminal lancer : uvicorn api:app --reload
 
