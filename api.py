@@ -3,6 +3,7 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 import logging
+import os
 
 app = FastAPI()
 
@@ -10,12 +11,13 @@ app = FastAPI()
 logging.basicConfig(level=logging.INFO)
 
 # Charger le modèle sauvegardé
-model_path = "https://github.com/imanitou/P7/tree/main/application/mlflow_model_"
+model_path = os.getenv('MODEL_PATH', 'https://raw.githubusercontent.com/imanitou/P7/main/application/mlflow_model_')
 model = mlflow.sklearn.load_model(model_path)
 
 # Charger les données des clients
+data_path = os.getenv('DATA_PATH', 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv')
 try:
-    clients_df = pd.read_csv("https://github.com/imanitou/P7/blob/main/app_train_with_feature_selection_subset.csv")
+    clients_df = pd.read_csv(data_path)
     logging.info("Clients data loaded successfully.")
     logging.info(f"Clients DataFrame head:\n{clients_df.head()}")
 except Exception as e:
