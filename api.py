@@ -82,8 +82,8 @@ def predict(client_id: int):
             logging.warning(f"Client ID {client_id} non trouvé.")
             raise HTTPException(status_code=404, detail="Client non trouvé")
 
-        # Supprimer la colonne ID pour la prédiction
-        client_features = client_data.drop(columns=['SK_ID_CURR']).values
+        
+        client_features = client_data.values
         prediction = model.predict(client_features)
         logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}")
         return {"prediction": prediction.tolist()}
