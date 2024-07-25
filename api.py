@@ -36,8 +36,8 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 
 # Configurez les chemins
 bucket_name = 'bucket_mlflow_model'
-model_blob_name = 'mlflow_model_/model.pkl'
-model_local_path = '/tmp/model.pkl'
+model_blob_name = 'mlflow_model_'
+model_local_path = '/tmp/mlflow_model_'
 
 # Télécharger le modèle
 try:
@@ -49,7 +49,7 @@ except Exception as e:
 
 # Charger le modèle sauvegardé
 model_path = model_local_path
-model = mlflow.sklearn.load_model(model_path, encoding="latin1")
+model = mlflow.sklearn.load_model(model_path)
 
 # Charger les données des clients
 data_path = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
