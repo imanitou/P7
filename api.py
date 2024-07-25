@@ -12,27 +12,37 @@ app = FastAPI()
 # Configurer la journalisation
 logging.basicConfig(level=logging.INFO)
 
+# Définir le chemin de la clé JSON (remplacez par votre propre chemin)
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'C:/Users/guill/Imane/P7/secrets/key.json'
+
 def download_blob(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
+    logging.info(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
 
-# Remplacez par le nom de votre bucket et le chemin de votre modèle
+# Configurez les chemins
 bucket_name = 'bucket_mlflow_model'
 model_blob_name = 'mlflow_model_/model.pkl'
 model_local_path = '/tmp/model.pkl'
 
+# Télécharger le modèle
 try:
     download_blob(bucket_name, model_blob_name, model_local_path)
-    model = mlflow.sklearn.load_model(model_local_path)
+    logging.info("Model downloaded successfully.")
 except Exception as e:
     logging.error(f"Error loading model: {e}")
     raise HTTPException(status_code=500, detail="Error loading model")
 
+# Charger le modèle sauvegardé
+model_path = model_local_path
+model = mlflow.sklearn.load_model(model_path)
+
+
 # Charger les données des clients
-data_path = os.getenv('DATA_PATH', 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv')
+data_path = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
 try:
     clients_df = pd.read_csv(data_path)
     logging.info("Clients data loaded successfully.")
