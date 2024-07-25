@@ -7,7 +7,7 @@ from babel.numbers import format_decimal
 import requests
 
 # Charger les données des clients
-clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
+clients_df = pd.read_csv("https://github.com/imanitou/P7/blob/main/app_train_with_feature_selection_subset.csv")
 
 # Fonction pour obtenir les informations d'un client
 def get_client_info(client_id):
