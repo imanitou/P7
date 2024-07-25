@@ -13,7 +13,7 @@ app = FastAPI()
 logging.basicConfig(level=logging.INFO)
 
 # Définir le chemin de la clé JSON (remplacez par votre propre chemin)
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'C:/Users/guill/Imane/P7/secrets/key.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'C:\Users\guill\Imane\P7\secrets\key.json'
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
