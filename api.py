@@ -4,15 +4,32 @@ import mlflow.sklearn
 import pandas as pd
 import logging
 import os
+from google.cloud import storage
+import tempfile
 
 app = FastAPI()
 
 # Configurer la journalisation
 logging.basicConfig(level=logging.INFO)
 
-# Charger le modèle sauvegardé
-model_path = os.getenv('MODEL_PATH', 'https://raw.githubusercontent.com/imanitou/P7/main/application/mlflow_model_')
-model = mlflow.sklearn.load_model(model_path)
+def download_blob(bucket_name, source_blob_name, destination_file_name):
+    """Downloads a blob from the bucket."""
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+
+# Remplacez par le nom de votre bucket et le chemin de votre modèle
+bucket_name = 'bucket_mlflow_model'
+model_blob_name = 'mlflow_model_/model.pkl'
+model_local_path = '/tmp/model.pkl'
+
+try:
+    download_blob(bucket_name, model_blob_name, model_local_path)
+    model = mlflow.sklearn.load_model(model_local_path)
+except Exception as e:
+    logging.error(f"Error loading model: {e}")
+    raise HTTPException(status_code=500, detail="Error loading model")
 
 # Charger les données des clients
 data_path = os.getenv('DATA_PATH', 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv')
@@ -39,8 +56,7 @@ def predict(client_id: int):
             raise HTTPException(status_code=404, detail="Client not found")
 
         # Supprimer la colonne ID pour la prédiction
-        # client_features = client_data.drop(columns=['SK_ID_CURR']).values
-        client_features = client_data.values
+        client_features = client_data.drop(columns=['SK_ID_CURR']).values
         prediction = model.predict(client_features)
         logging.info(f"Prediction for client ID {client_id}: {prediction[0]}")
         return {"prediction": prediction.tolist()}
