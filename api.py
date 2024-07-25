@@ -36,8 +36,8 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 
 # Configurez les chemins
 bucket_name = 'bucket_mlflow_model'
-model_blob_name = 'mlflow_model_'
-model_local_path = '/tmp/mlflow_model_'
+model_blob_name = 'mlflow_model_/model'
+model_local_path = '/tmp/model'
 
 # Télécharger le modèle
 try:
