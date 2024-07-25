@@ -7,7 +7,8 @@ from babel.numbers import format_decimal
 import requests
 
 # Charger les données des clients
-clients_df = pd.read_csv("https://github.com/imanitou/P7/blob/main/app_train_with_feature_selection_subset.csv")
+data_url = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
+clients_df = pd.read_csv(data_url)
 
 # Fonction pour obtenir les informations d'un client
 def get_client_info(client_id):
@@ -56,7 +57,7 @@ if client_id:
         st.dataframe(formatted_info)
         
         # Envoyer la requête à l'API pour obtenir la prédiction
-        response = requests.get(f"http://127.0.0.1:8000/predict/{client_id}")
+        response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
         if response.status_code == 200:
             prediction = response.json()['prediction'][0]
             if prediction == 1:
