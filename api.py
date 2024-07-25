@@ -37,7 +37,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 # Configurer les chemins
 bucket_name = 'bucket_mlflow_model'
 model_blob_name = 'mlflow_model_/'
-model_local_path = 'C:/Users/guill/Imane/P7/mlflow_model_'
+model_local_path = 'C:/Users/guill/Imane/P7/mlflow_model_/'
 
 # Assurez-vous que le chemin local existe
 os.makedirs(model_local_path, exist_ok=True)
@@ -49,7 +49,7 @@ for file_name in files_to_download:
     download_blob(bucket_name, model_blob_name + file_name, os.path.join(model_local_path, file_name))
 
 # Charger le modèle sauvegardé
-model_path = model_local_path
+model_path = os.path.abspath(model_local_path)
 
 try:
     model = mlflow.sklearn.load_model(model_path)
