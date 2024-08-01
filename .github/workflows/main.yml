@@ -28,6 +28,6 @@ jobs:
 
     - name: Run tests
       env:
-        MLFLOW_TRACKING_URI: file:///c:/Users/guill/P7
+        MLFLOW_TRACKING_URI: file:///C:/Users/guill/Imane/P7
       run: |
         pytest
