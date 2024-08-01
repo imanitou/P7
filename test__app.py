@@ -6,11 +6,11 @@ from api_2 import app, model
 
 client = TestClient(app)
 
-@pytest.fixture(scope="module", autouse=True)
-def setup_mlflow():
+#@pytest.fixture(scope="module", autouse=True)
+#def setup_mlflow():
     # Configure MLFlow pour utiliser le serveur local
-    mlflow.set_tracking_uri("file:///c:/Users/guill/Imane/P7")
-    yield
+ #   mlflow.set_tracking_uri("file:///c:/Users/guill/Imane/P7")
+  #  yield
 
 # Test pour vérifier que l'API racine ("/") renvoie le message
 def test_root():
