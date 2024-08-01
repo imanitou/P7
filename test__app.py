@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch, Mock
 from fastapi.testclient import TestClient
 from api_2 import app, model
 
@@ -10,12 +11,7 @@ def test_root():
     assert response.status_code == 200
     assert response.json() == {"message": "Welcome to the MLFlow Model API"}
 
-# Test quand bonne prédiction
-def test_predict_existing_client():
-    response = client.get("/predict/100002")
-    assert response.status_code == {"prediction": [1]}
-
-# Test quand mauvaise prédiction
+# Test quand la prédiction est correcte
 def test_predict_existing_client():
     response = client.get("/predict/100002")
     assert response.status_code == 200
@@ -26,34 +22,19 @@ def test_predict_nonexistent_client():
     response = client.get("/predict/98765")
     assert response.status_code == 400
 
-# Test pour une entrée non valide 
+# Test pour une entrée non valide
 def test_input_validation():
     response = client.get("/predict/abcd")
     assert response.status_code == 422
 
-# Test quand problème dans le chargement du modèle ou des données clients
+# Test pour simuler un problème dans le chargement du modèle
+@patch('api_2.model', new_callable=Mock)
+def test_error_response(mock_model):
+    # Simule un modèle défectueux
+    mock_model.side_effect = Exception("Model loading error")
 
-client = TestClient(app)
-
-def test_error_response():
-    # Charger temporairement un modèle incorrect
-    model_loaded = False
-
-    # Envoyer une requête de prédiction avec un ID client
+    # Envoyer une requête de prédiction pour vérifier la gestion des erreurs
     response = client.get("/predict/100002")
+    assert response.status_code == 400  # En cas de problème avec le modèle, on s'attend à une erreur serveur
 
-    # Vérifier que la réponse est une erreur HTTP 500
-    assert response.status_code == 200
-
-    # Vérifier que le message d'erreur est correct
-    assert response.json() == {'prediction': [1]}
-
-    # Réinitialiser le modèle chargé
-    model_loaded = True
-
-    # Envoyer une autre requête de prédiction avec un ID client
-    response = client.get("/predict/100002")
-
-    # Vérifier que la réponse est une erreur 
-    assert response.status_code == 200
-   
+    # Vous pouvez également tester la réinitialisation du modèle ici si nécessaire.
