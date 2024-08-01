@@ -1,9 +1,16 @@
 import pytest
+import mlflow
 from unittest.mock import patch, Mock
 from fastapi.testclient import TestClient
 from api_2 import app, model
 
 client = TestClient(app)
+
+@pytest.fixture(scope="module", autouse=True)
+def setup_mlflow():
+    # Configure MLFlow pour utiliser le serveur local
+    mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    yield
 
 # Test pour vérifier que l'API racine ("/") renvoie le message
 def test_root():
