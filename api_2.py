@@ -10,7 +10,7 @@ app = FastAPI()
 logging.basicConfig(level=logging.INFO)
 
 # Charger le modèle sauvegardé
-model_path = "C:/Users/guill/Imane/P7/mlflow_model_"
+model_path = "C:/Users/guill/P7/mlflow_model_"
 model = mlflow.sklearn.load_model(model_path)
 
 # Charger les données des clients
