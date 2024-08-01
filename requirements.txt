@@ -56,7 +56,6 @@ imbalanced-learn==0.12.3
 imblearn==0.0
 importlib_metadata==7.1.0
 ipykernel==6.29.4
-ipython==8.25.0
 ipywidgets==8.1.3
 isoduration==20.11.0
 itsdangerous==2.2.0
