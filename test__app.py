@@ -9,7 +9,7 @@ client = TestClient(app)
 @pytest.fixture(scope="module", autouse=True)
 def setup_mlflow():
     # Configure MLFlow pour utiliser le serveur local
-    mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    mlflow.set_tracking_uri("file:///c:/Users/guill/P7")
     yield
 
 # Test pour vérifier que l'API racine ("/") renvoie le message
@@ -44,4 +44,3 @@ def test_error_response(mock_model):
     response = client.get("/predict/100002")
     assert response.status_code == 400  # En cas de problème avec le modèle, on s'attend à une erreur serveur
 
-    # Vous pouvez également tester la réinitialisation du modèle ici si nécessaire.
