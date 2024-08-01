@@ -123,7 +123,7 @@ pydantic_core==2.20.1
 pydeck==0.9.1
 Pygments==2.18.0
 pyparsing==3.1.2
-pytest-8.3.2
+pytest==7.2.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 python-json-logger==2.0.7
