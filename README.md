@@ -24,3 +24,23 @@ Pour ce faire :
 Lien vers l'application : https://creditprediction.streamlit.app/ 
 
 Pour l'analyse exploratoire des données, nous nous inspirons du kernel suivant : https://www.kaggle.com/code/willkoehrsen/start-here-a-gentle-introduction/notebook
+
+### Structure du repository 
+
+**Données** : app_train_with_feature_selection_subset.csv
+
+**Code modélisation** : Notebook modélisation.ipynb
+
+**Code API** : api.py
+
+**Code tests unitaires** : test_api.py
+
+**Code application Streamlit** : app_streamlit.py
+
+**Code data drift** : Data drift.ipynb
+
+**Rapport HTML data drift** : report.html
+
+**Packages et versions utilisés** : requirements.txt
+
+
