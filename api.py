@@ -6,6 +6,11 @@ import logging
 import os
 from google.cloud import storage
 import tempfile
+from dotenv import load_dotenv
+import shap
+import numpy as np
+
+load_dotenv('.env')
 
 app = FastAPI()
 
@@ -28,7 +33,10 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = temp_file_path
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
     """Télécharge un blob depuis le bucket."""
-    storage_client = storage.Client()
+    try:
+        storage_client = storage.Client() 
+    except:
+        storage_client = storage.Client.from_service_account_json(".env.json")
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
@@ -51,6 +59,10 @@ for file_name in files_to_download:
 # Charger le modèle sauvegardé
 model_path = os.path.abspath(model_local_path)
 
+# Charger le modèle sauvegardé
+# model_path = "C:/Users/guill/Imane/P7/mlflow_model_"
+model = mlflow.sklearn.load_model(model_path)
+model_ = model.named_steps['classifier']
 try:
     model = mlflow.sklearn.load_model(model_path)
     logging.info("Modèle chargé avec succès.")
@@ -62,6 +74,7 @@ except Exception as e:
 data_path = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
 try:
     clients_df = pd.read_csv(data_path)
+    # clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
     logging.info("Données des clients chargées avec succès.")
     logging.info(f"En-tête du DataFrame des clients :\n{clients_df.head()}")
 except Exception as e:
@@ -72,6 +85,8 @@ except Exception as e:
 def read_root():
     return {"message": "Bienvenue à l'API du modèle MLFlow"}
 
+
+
 @app.get("/predict/{client_id}")
 def predict(client_id: int):
     try:
@@ -81,15 +96,39 @@ def predict(client_id: int):
         if client_data.empty:
             logging.warning(f"Client ID {client_id} non trouvé.")
             raise HTTPException(status_code=404, detail="Client non trouvé")
-
         
+        # On extrait les features du client
         client_features = client_data.values
+
+        # Obtenir les prédictions et les valeurs SHAP
+        explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))  # Choisir l'explainer adapté à ton modèle
+        # Calcul des valeurs SHAP pour le client
+        shap_values = explainer.shap_values(client_features)
+
+        # Prédiction
         prediction = model.predict(client_features)
-        logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}")
-        return {"prediction": prediction.tolist()}
+        # Probabilité associée
+        prediction_proba = model.predict_proba(client_features)
+        # Probabilité de la classe positive (1)
+        score = prediction_proba[:, 1]
+
+     
+        logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}, Score : {score[0]}")
+
+
+        return {
+            "prediction": prediction.tolist(),
+            "score": score.tolist(),
+            "features": client_data.columns.tolist(),
+            "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
+
+        }
+
+    
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=400, detail=str(e))
+
     finally:
         # Nettoyer le fichier temporaire après utilisation
         if os.path.exists(temp_file_path):
