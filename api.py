@@ -6,6 +6,8 @@ import logging
 import os
 from google.cloud import storage
 import tempfile
+import shap
+import numpy as np 
 
 app = FastAPI()
 
@@ -82,14 +84,33 @@ def predict(client_id: int):
             logging.warning(f"Client ID {client_id} non trouvé.")
             raise HTTPException(status_code=404, detail="Client non trouvé")
 
-        
+        # On extrait les features du client
         client_features = client_data.values
+
+        # Obtenir les prédictions et les valeurs SHAP
+        explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))  # Choisir l'explainer adapté à ton modèle
+        # Calcul des valeurs SHAP pour le client
+        shap_values = explainer.shap_values(client_features)
+
+        # Prédiction
         prediction = model.predict(client_features)
-        logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}")
-        return {"prediction": prediction.tolist()}
+        # Probabilité associée
+        prediction_proba = model.predict_proba(client_features)
+        # Probabilité de la classe positive (1)
+        score = prediction_proba[:, 1]
+
+        logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}, Score : {score[0]}")
+
+        return {"prediction": prediction.tolist(),
+                "score": score.tolist(),
+                "features": client_data.columns.tolist(),
+                "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
+        }
+    
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=400, detail=str(e))
+    
     finally:
         # Nettoyer le fichier temporaire après utilisation
         if os.path.exists(temp_file_path):

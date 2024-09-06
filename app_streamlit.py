@@ -5,6 +5,10 @@ import numpy as np
 import seaborn as sns
 from babel.numbers import format_decimal
 import requests
+import plotly.graph_objects as go
+import plotly.express as px
+import time
+import shap
 
 # Charger les données des clients
 data_url = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
@@ -44,22 +48,22 @@ st.markdown("""
 # Entrée pour l'ID du client
 client_id = st.number_input("Entrez le SK_ID_CURR du client :", min_value=int(clients_df['SK_ID_CURR'].min()), max_value=int(clients_df['SK_ID_CURR'].max()))
 
-# Sélectionner les colonnes spécifiques à afficher
-columns_to_display = ['SK_ID_CURR', 'AMT_ANNUITY', 'AMT_CREDIT', 'ANNUITY_INCOME_PERCENT', 'DAYS_EMPLOYED', 'CREDIT_INCOME_PERCENT', 'OWN_CAR_AGE', 'previous_loan_counts',
-'CREDIT_TERM', 'DAYS_EMPLOYED_PERCENT', 'NAME_FAMILY_STATUS_Married']
+# # Sélectionner les colonnes spécifiques à afficher
+# columns_to_display = ['SK_ID_CURR', 'AMT_ANNUITY', 'AMT_CREDIT', 'ANNUITY_INCOME_PERCENT', 'DAYS_EMPLOYED', 'CREDIT_INCOME_PERCENT', 'OWN_CAR_AGE', 'previous_loan_counts',
+# 'CREDIT_TERM', 'DAYS_EMPLOYED_PERCENT', 'NAME_FAMILY_STATUS_Married']
 
 # Afficher les informations du client
 if client_id:
     client_info = get_client_info(client_id)
     if not client_info.empty:
         st.write("Informations concernant le client :")
-        formatted_info = client_info[columns_to_display].applymap(lambda x: format_number(x) if isinstance(x, (int, float)) else x)
-        st.dataframe(formatted_info)
+        formatted_info = client_info.applymap(lambda x: format_number(x) if isinstance(x, (int, float)) else x)        st.dataframe(formatted_info)
         
         # Envoyer la requête à l'API pour obtenir la prédiction
         response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
         if response.status_code == 200:
             prediction = response.json()['prediction'][0]
+            score = response.json()['score'][0]
             if prediction == 1:
                 st.write("**Prédiction : BON CLIENT ! Le client devrait rembourser son crédit.**")
             else:
@@ -67,6 +71,12 @@ if client_id:
         else:
             st.error("Erreur lors de la prédiction")
             
+            # if score < 0.18:
+            #     st.write("**Prédiction : BON CLIENT ! Le client devrait rembourser son crédit.**")
+            # else:
+            #     st.write("**Prédiction : ATTENTION ! Le client risque de ne pas rembourser son crédit.**")
+            st.write(f"Probabilité de faire défaut : {score:.2f}")
+
         # Comparaison des caractéristiques du client avec la moyenne des autres clients
         st.markdown("<p class='centered'><u>Analyse univariée</u></p>", unsafe_allow_html=True)
         features = ['AMT_CREDIT', 'AMT_ANNUITY', 'ANNUITY_INCOME_PERCENT', 'CREDIT_INCOME_PERCENT', 'CREDIT_TERM']
