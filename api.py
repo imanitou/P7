@@ -129,38 +129,30 @@ def predict(client_id: int):
         # On extrait les features du client
         client_features = client_data.values
 
-        # DEBUG : Vérification du format des données du client
-        logging.info(f"Features du client : {client_features}")
-
-        # Obtenir les prédictions et les valeurs SHAP
+        # DEBUG : Calcul de la prédiction
         logging.info("Calcul de la prédiction.")
         prediction = model.predict(client_features)
         logging.info(f"Prédiction : {prediction}")
 
+        # DEBUG : Calcul de la probabilité
         logging.info("Calcul des probabilités associées.")
         prediction_proba = model.predict_proba(client_features)
         logging.info(f"Probabilités : {prediction_proba}")
 
         # Probabilité de la classe positive (1)
-        score = prediction_proba[:, 1]
+        score = prediction_proba[:, 1]  # Classe positive
         logging.info(f"Score (classe positive): {score}")
 
-        # DEBUG : Commenter cette partie SHAP pour tester sans
-        logging.info("Calcul des valeurs SHAP.")
-        explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))
-        shap_values = explainer.shap_values(client_features)
-        logging.info("Valeurs SHAP calculées.")
-
+        # Retourner uniquement le score pour tester si ça fonctionne
         return {
             "prediction": prediction.tolist(),
-            "score": score.tolist(),
-            "features": client_data.columns.tolist(),
-            "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
+            "score": score.tolist()  # Renvoi du score uniquement pour tester
         }
 
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=400, detail=str(e))
+
 
     finally:
         # Nettoyer le fichier temporaire après utilisation
