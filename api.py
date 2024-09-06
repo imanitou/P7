@@ -120,38 +120,32 @@ def read_root():
 def predict(client_id: int):
     try:
         # Rechercher le client par ID
-        logging.info(f"Recherche du client ID {client_id}")
         client_data = clients_df[clients_df['SK_ID_CURR'] == client_id]
         if client_data.empty:
-            logging.warning(f"Client ID {client_id} non trouvé.")
             raise HTTPException(status_code=404, detail="Client non trouvé")
 
         # On extrait les features du client
         client_features = client_data.values
 
-        # DEBUG : Calcul de la prédiction
-        logging.info("Calcul de la prédiction.")
-        prediction = model.predict(client_features)
-        logging.info(f"Prédiction : {prediction}")
+        # Si 'predict_proba' n'est pas supporté, utiliser 'decision_function'
+        if hasattr(model, 'predict_proba'):
+            prediction_proba = model.predict_proba(client_features)
+            score = prediction_proba[:, 1]
+        elif hasattr(model, 'decision_function'):
+            score = model.decision_function(client_features)
+        else:
+            logging.error("Le modèle ne supporte ni 'predict_proba' ni 'decision_function'.")
+            raise HTTPException(status_code=500, detail="Le modèle ne supporte ni 'predict_proba' ni 'decision_function'.")
 
-        # DEBUG : Calcul de la probabilité
-        logging.info("Calcul des probabilités associées.")
-        prediction_proba = model.predict_proba(client_features)
-        logging.info(f"Probabilités : {prediction_proba}")
-
-        # Probabilité de la classe positive (1)
-        score = prediction_proba[:, 1]  # Classe positive
-        logging.info(f"Score (classe positive): {score}")
-
-        # Retourner uniquement le score pour tester si ça fonctionne
         return {
-            "prediction": prediction.tolist(),
-            "score": score.tolist()  # Renvoi du score uniquement pour tester
+            "prediction": model.predict(client_features).tolist(),
+            "score": score.tolist()
         }
 
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=400, detail=str(e))
+
 
 
     finally:
