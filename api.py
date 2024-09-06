@@ -136,7 +136,11 @@ def predict(client_id: int):
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
 
-
+# Ce bloc permet de démarrer l'application en mode standalone (lorsque le script est directement exécuté)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Utilisation de la variable PORT définie par Render
+    uvicorn.run(app, host="0.0.0.0", port=port)
+    
 # Dans le terminal lancer : uvicorn api:app --reload
 
 # Test pour faire une requête GET à l'API avec un ID de client existant : http://127.0.0.1:8000/predict/100006
