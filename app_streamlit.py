@@ -57,7 +57,8 @@ if client_id:
     client_info = get_client_info(client_id)
     if not client_info.empty:
         st.write("Informations concernant le client :")
-        formatted_info = client_info.applymap(lambda x: format_number(x) if isinstance(x, (int, float)) else x)        st.dataframe(formatted_info)
+        formatted_info = client_info.applymap(lambda x: format_number(x) if isinstance(x, (int, float)) else x)      
+        st.dataframe(formatted_info)
         
         # Envoyer la requête à l'API pour obtenir la prédiction
         response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
