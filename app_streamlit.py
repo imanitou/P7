@@ -65,7 +65,7 @@ if client_id:
         response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
         if response.status_code == 200:
             response_json = response.json()
-            print(response_json)  # Ajoutez ceci pour voir le contenu de la réponse
+            st.write(response_json)  # Ajoutez ceci pour voir le contenu de la réponse
             prediction = response_json.get('prediction', [None])[0]  # Gestion de l'absence de la clé 'prediction'
             score = response_json.get('score', [None])[0]  # Gestion de l'absence de la clé 'score'
 
