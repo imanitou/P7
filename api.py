@@ -89,7 +89,7 @@ def read_root():
 
 
 
-@app.get("/predict/{client_id}")
+@app.get("/predict/{client_id}", methods=["GET", "HEAD"])
 def predict(client_id: int):
     try:
         # Rechercher le client par ID
