@@ -120,9 +120,9 @@ def predict(client_id: int):
 
         return {
             "prediction": prediction.tolist(),
-            #"score": score.tolist(),
+            "score": score.tolist(),
             "features": client_data.columns.tolist(),
-            #"shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
+            "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
 
         }
 
@@ -131,15 +131,16 @@ def predict(client_id: int):
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
+
     finally:
         # Nettoyer le fichier temporaire après utilisation
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
 
 # Ce bloc permet de démarrer l'application en mode standalone (lorsque le script est directement exécuté)
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Utilisation de la variable PORT définie par Render
-    uvicorn.run(app, host="0.0.0.0", port=port)
+# if __name__ == "__main__":
+#     port = int(os.environ.get("PORT", 10000))  # Utilisation de la variable PORT définie par Render
+#     uvicorn.run(app, host="0.0.0.0", port=port)
     
 # Dans le terminal lancer : uvicorn api:app --reload
 
