@@ -89,7 +89,7 @@ def read_root():
 
 
 
-@app.get("/predict/{client_id}", methods=["GET", "HEAD"])
+@app.get("/predict/{client_id}")
 def predict(client_id: int):
     try:
         # Rechercher le client par ID
@@ -120,9 +120,9 @@ def predict(client_id: int):
 
         return {
             "prediction": prediction.tolist(),
-            "score": score.tolist(),
+            #"score": score.tolist(),
             "features": client_data.columns.tolist(),
-            "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
+            #"shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
 
         }
 
