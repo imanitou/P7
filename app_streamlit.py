@@ -59,8 +59,16 @@ if client_id:
         st.write("Informations concernant le client :")
         formatted_info = client_info.applymap(lambda x: format_number(x) if isinstance(x, (int, float)) else x)      
         st.dataframe(formatted_info)
-        
+
         # Envoyer la requête à l'API pour obtenir la prédiction
+
+        response = requests.get(f"https://p7-9ze0.onrender.com/predict", params=...)
+        if response.status_code == 200:
+            response_json = response.json()
+            print(response_json)  # Ajoutez ceci pour voir le contenu de la réponse
+            prediction = response_json.get('prediction', [None])[0]  # Gestion de l'absence de la clé 'prediction'
+            score = response_json.get('score', [None])[0]  # Gestion de l'absence de la clé 'score'
+
         response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
         if response.status_code == 200:
             prediction = response.json()['prediction'][0]
