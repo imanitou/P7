@@ -61,14 +61,16 @@ model_path = os.path.abspath(model_local_path)
 
 # Charger le modèle sauvegardé
 # model_path = "C:/Users/guill/Imane/P7/mlflow_model_"
-model = mlflow.sklearn.load_model(model_path)
-model_ = model.named_steps['classifier']
+# model = mlflow.sklearn.load_model(model_path)
+
 try:
     model = mlflow.sklearn.load_model(model_path)
     logging.info("Modèle chargé avec succès.")
 except Exception as e:
     logging.error(f"Erreur lors du chargement du modèle: {e}")
     raise HTTPException(status_code=500, detail="Erreur lors du chargement du modèle")
+
+model_ = model.named_steps['classifier']
 
 # Charger les données des clients
 data_path = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
