@@ -69,22 +69,22 @@ if client_id:
             prediction = response_json.get('prediction', [None])[0]  # Gestion de l'absence de la clé 'prediction'
             score = response_json.get('score', [None])[0]  # Gestion de l'absence de la clé 'score'
 
-        response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
-        if response.status_code == 200:
-            prediction = response.json()['prediction'][0]
-            score = response.json()['score'][0]
-            if prediction == 1:
-                st.write("**Prédiction : BON CLIENT ! Le client devrait rembourser son crédit.**")
-            else:
-                st.write("**Prédiction : ATTENTION ! Le client risque de ne pas rembourser son crédit.**")
-        else:
-            st.error("Erreur lors de la prédiction")
+        # response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
+        # if response.status_code == 200:
+        #     prediction = response.json()['prediction'][0]
+        #     score = response.json()['score'][0]
+        #     if prediction == 1:
+        #         st.write("**Prédiction : BON CLIENT ! Le client devrait rembourser son crédit.**")
+        #     else:
+        #         st.write("**Prédiction : ATTENTION ! Le client risque de ne pas rembourser son crédit.**")
+        # else:
+        #     st.error("Erreur lors de la prédiction")
             
-            # if score < 0.18:
-            #     st.write("**Prédiction : BON CLIENT ! Le client devrait rembourser son crédit.**")
-            # else:
-            #     st.write("**Prédiction : ATTENTION ! Le client risque de ne pas rembourser son crédit.**")
-            st.write(f"Probabilité de faire défaut : {score:.2f}")
+        #     # if score < 0.18:
+        #     #     st.write("**Prédiction : BON CLIENT ! Le client devrait rembourser son crédit.**")
+        #     # else:
+        #     #     st.write("**Prédiction : ATTENTION ! Le client risque de ne pas rembourser son crédit.**")
+        #     st.write(f"Probabilité de faire défaut : {score:.2f}")
 
         # Comparaison des caractéristiques du client avec la moyenne des autres clients
         st.markdown("<p class='centered'><u>Analyse univariée</u></p>", unsafe_allow_html=True)
