@@ -62,7 +62,7 @@ if client_id:
 
         # Envoyer la requête à l'API pour obtenir la prédiction
 
-        response = requests.get(f"https://p7-9ze0.onrender.com/predict", params=...)
+        response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
         if response.status_code == 200:
             response_json = response.json()
             print(response_json)  # Ajoutez ceci pour voir le contenu de la réponse
