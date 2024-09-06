@@ -74,6 +74,48 @@ except Exception as e:
 def read_root():
     return {"message": "Bienvenue à l'API du modèle MLFlow"}
 
+# @app.get("/predict/{client_id}")
+# def predict(client_id: int):
+#     try:
+#         # Rechercher le client par ID
+#         logging.info(f"Recherche du client ID {client_id}")
+#         client_data = clients_df[clients_df['SK_ID_CURR'] == client_id]
+#         if client_data.empty:
+#             logging.warning(f"Client ID {client_id} non trouvé.")
+#             raise HTTPException(status_code=404, detail="Client non trouvé")
+
+#         # On extrait les features du client
+#         client_features = client_data.values
+
+#         # Obtenir les prédictions et les valeurs SHAP
+#         explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))  # Choisir l'explainer adapté à ton modèle
+#         # Calcul des valeurs SHAP pour le client
+#         shap_values = explainer.shap_values(client_features)
+
+#         # Prédiction
+#         prediction = model.predict(client_features)
+#         # Probabilité associée
+#         prediction_proba = model.predict_proba(client_features)
+#         # Probabilité de la classe positive (1)
+#         score = prediction_proba[:, 1]
+
+#         logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}, Score : {score[0]}")
+
+#         return {"prediction": prediction.tolist(),
+#                 "score": score.tolist(),
+#                 "features": client_data.columns.tolist(),
+#                 "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
+#         }
+    
+#     except Exception as e:
+#         logging.error(f"Erreur lors de la prédiction : {e}")
+#         raise HTTPException(status_code=400, detail=str(e))
+    
+#     finally:
+#         # Nettoyer le fichier temporaire après utilisation
+#         if os.path.exists(temp_file_path):
+#             os.remove(temp_file_path)
+
 @app.get("/predict/{client_id}")
 def predict(client_id: int):
     try:
@@ -87,35 +129,43 @@ def predict(client_id: int):
         # On extrait les features du client
         client_features = client_data.values
 
-        # Obtenir les prédictions et les valeurs SHAP
-        explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))  # Choisir l'explainer adapté à ton modèle
-        # Calcul des valeurs SHAP pour le client
-        shap_values = explainer.shap_values(client_features)
+        # DEBUG : Vérification du format des données du client
+        logging.info(f"Features du client : {client_features}")
 
-        # Prédiction
+        # Obtenir les prédictions et les valeurs SHAP
+        logging.info("Calcul de la prédiction.")
         prediction = model.predict(client_features)
-        # Probabilité associée
+        logging.info(f"Prédiction : {prediction}")
+
+        logging.info("Calcul des probabilités associées.")
         prediction_proba = model.predict_proba(client_features)
+        logging.info(f"Probabilités : {prediction_proba}")
+
         # Probabilité de la classe positive (1)
         score = prediction_proba[:, 1]
+        logging.info(f"Score (classe positive): {score}")
 
-        logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}, Score : {score[0]}")
+        # DEBUG : Commenter cette partie SHAP pour tester sans
+        logging.info("Calcul des valeurs SHAP.")
+        explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))
+        shap_values = explainer.shap_values(client_features)
+        logging.info("Valeurs SHAP calculées.")
 
-        return {"prediction": prediction.tolist(),
-                "score": score.tolist(),
-                "features": client_data.columns.tolist(),
-                "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
+        return {
+            "prediction": prediction.tolist(),
+            "score": score.tolist(),
+            "features": client_data.columns.tolist(),
+            "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
         }
-    
+
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=400, detail=str(e))
-    
+
     finally:
         # Nettoyer le fichier temporaire après utilisation
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
-
 
 # Dans le terminal lancer : uvicorn api:app --reload
 
