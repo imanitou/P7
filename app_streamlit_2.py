@@ -17,38 +17,6 @@ clients_df = pd.read_csv(data_url)
 # clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
 
 
-
-# Remplacez par l'URL correcte de votre API
-url = "http://127.0.0.1:8000/predict/100006"
-
-try:
-    response = requests.get(url)
-    response.raise_for_status()  # Vérifie les erreurs HTTP
-    data = response.json()
-    
-    # Afficher la réponse complète pour le débogage
-    st.write("Réponse de l'API :", data)
-    
-    # Vérifier la présence de la clé 'score'
-    if 'score' in data:
-        st.write("Clé 'score' trouvée dans la réponse API.")
-        # Vérifier si 'score' est une liste et contient des éléments
-        if isinstance(data['score'], list):
-            if len(data['score']) > 0:
-                score = data['score'][0]
-                st.write("Score :", score)
-            else:
-                st.error("La liste 'score' est vide.")
-        else:
-            st.error("Le format de 'score' est inattendu.")
-    else:
-        st.error("La clé 'score' est absente de la réponse API.")
-        
-except requests.exceptions.RequestException as e:
-    st.error(f"Erreur lors de l'appel à l'API : {e}")
-
-
-
 # Fonction pour obtenir les informations d'un client
 def get_client_info(client_id):
     client_info = clients_df[clients_df['SK_ID_CURR'] == client_id]
@@ -88,6 +56,7 @@ client_id = st.number_input("Entrez le SK_ID_CURR du client :", min_value=int(cl
 # Exemple d'URL d'API, remplacez par l'URL correcte
 url = "http://127.0.0.1:8000/predict/100006"
 response = requests.get(url)
+response.raise_for_status()  # Vérifie les erreurs HTTP
 data = response.json()
 
 # Afficher la réponse complète pour déboguer
@@ -117,8 +86,8 @@ if client_id:
         st.dataframe(formatted_info)
         
         # Envoyer la requête à l'API pour obtenir la prédiction
-        # response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
-        response = requests.get(f"http://127.0.0.1:8000/predict/{client_id}")
+        response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
+        # response = requests.get(f"http://127.0.0.1:8000/predict/{client_id}")
         if response.status_code == 200:
             data = response.json()
             prediction = data['prediction'][0]
