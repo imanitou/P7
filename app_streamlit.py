@@ -62,6 +62,9 @@ if client_id:
         # Envoyer la requête à l'API pour obtenir la prédiction
         response = requests.get(f"https://p7-9ze0.onrender.com/predict/{client_id}")
         # response = requests.get(f"http://127.0.0.1:8000/predict/{client_id}")
+        # TEST
+        st.write(response.json())
+        # FIN TEST
         if response.status_code == 200:
             data = response.json()
             prediction = data['prediction'][0]
