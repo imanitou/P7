@@ -110,9 +110,9 @@ def predict(client_id: int):
         # Prédiction
         prediction = model.predict(client_features)
         # Probabilité associée
-        # prediction_proba = model.predict_proba(client_features)
+        prediction_proba = model.predict_proba(client_features)
         # Probabilité de la classe positive (1)
-        # score = prediction_proba[:, 1]
+        score = prediction_proba[:, 1]
 
      
         logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}, Score : {score[0]}")
@@ -120,7 +120,7 @@ def predict(client_id: int):
 
         return {
             "prediction": prediction.tolist(),
-            #"score": score.tolist(),
+            "score": score.tolist(),
             "features": client_data.columns.tolist(),
             "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
 
