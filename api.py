@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import shap
 import numpy as np
 
-load_dotenv('.env')
+# load_dotenv('.env')
 
 app = FastAPI()
 
@@ -70,13 +70,13 @@ except Exception as e:
     logging.error(f"Erreur lors du chargement du modèle: {e}")
     raise HTTPException(status_code=500, detail="Erreur lors du chargement du modèle")
 
-model_ = model.named_steps['classifier']
+# model_ = model.named_steps['classifier']
 
 # Charger les données des clients
 data_path = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
 try:
-    clients_df = pd.read_csv(data_path)
-    # clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
+    #clients_df = pd.read_csv(data_path)
+    clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
     logging.info("Données des clients chargées avec succès.")
     logging.info(f"En-tête du DataFrame des clients :\n{clients_df.head()}")
 except Exception as e:
@@ -99,30 +99,30 @@ def predict(client_id: int):
             logging.warning(f"Client ID {client_id} non trouvé.")
             raise HTTPException(status_code=404, detail="Client non trouvé")
         
-        # On extrait les features du client
+        # # On extrait les features du client
         client_features = client_data.values
 
-        # Obtenir les prédictions et les valeurs SHAP
-        explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))  # Choisir l'explainer adapté à ton modèle
-        # Calcul des valeurs SHAP pour le client
-        #shap_values = explainer.shap_values(client_features)
+        # # Obtenir les prédictions et les valeurs SHAP
+        # explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))  # Choisir l'explainer adapté à ton modèle
+        # # Calcul des valeurs SHAP pour le client
+        # shap_values = explainer.shap_values(client_features)
 
         # Prédiction
         prediction = model.predict(client_features)
-        # Probabilité associée
-        prediction_proba = model.predict_proba(client_features)
-        # Probabilité de la classe positive (1)
-        score = prediction_proba[:, 1]
+        # # Probabilité associée
+        # prediction_proba = model.predict_proba(client_features)
+        # # Probabilité de la classe positive (1)
+        # score = prediction_proba[:, 1]
 
      
-        logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}, Score : {score[0]}")
+        logging.info(f"Prédiction pour le client ID {client_id} : {prediction[0]}")
 
 
         return {
             "prediction": prediction.tolist(),
-            "score": score.tolist(),
-            "features": client_data.columns.tolist(),
-            #"shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
+            # "score": score.tolist(),
+            # "features": client_data.columns.tolist(),
+            # "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
 
         }
 
@@ -130,38 +130,13 @@ def predict(client_id: int):
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=400, detail=str(e))
-    
-@app.get("/shap/{client_id}")
-def shap_values(client_id: int):
-    try:
-        # Rechercher le client par ID
-        logging.info(f"Calcul des valeurs SHAP pour le client ID {client_id}")
-        client_data = clients_df[clients_df['SK_ID_CURR'] == client_id]
-        if client_data.empty:
-            logging.warning(f"Client ID {client_id} non trouvé.")
-            raise HTTPException(status_code=404, detail="Client non trouvé")
-        
-        # On extrait les features du client
-        client_features = client_data.values
-
-        # Obtenir les valeurs SHAP
-        explainer = shap.KernelExplainer(model_.predict_proba, shap.sample(clients_df.values, 10))  # Adapter selon votre modèle
-        shap_values = explainer.shap_values(client_features)
-
-        return {
-            "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
-        }
-
-    except Exception as e:
-        logging.error(f"Erreur lors du calcul des valeurs SHAP pour le client {client_id} : {e}")
-        raise HTTPException(status_code=500, detail="Erreur serveur")
 
     finally:
         # Nettoyer le fichier temporaire après utilisation
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
 
-# Ce bloc permet de démarrer l'application en mode standalone (lorsque le script est directement exécuté)
+# # Ce bloc permet de démarrer l'application en mode standalone (lorsque le script est directement exécuté)
 # if __name__ == "__main__":
 #     port = int(os.environ.get("PORT", 8000))  # Utilisation de la variable PORT définie par Render
 #     uvicorn.run(app, host="0.0.0.0", port=port)
