@@ -119,7 +119,7 @@ def predict(client_id: int):
 
 
         return {
-            "prediction": prediction.tolist(),
+            "prediction": prediction.tolist()
             # "score": score.tolist(),
             # "features": client_data.columns.tolist(),
             # "shap_values": shap_values.tolist() if isinstance(shap_values, np.ndarray) else [s.tolist() for s in shap_values]
